@@ -153,7 +153,7 @@ def progress_on_calibrate(event_pt):
         else:
             scale = 0.5*scale
             
-        if scale < 0.05:
+        if scale < (1/8)/20: # What is the desired accuracy in inches
             # size is done, move to V
             calibrate_mode = "V Line Angle"
             y = rotate_vec(x,90)
