@@ -189,9 +189,9 @@ def progress_on_calibrate(event_pt):
 
 class on_screen_square:
     def __init__(self, root, canvas, cc):
-        self.square_center_in = np.transpose(np.array([0,0]))
-        self.square_width_in = 20
-        self.square_height_in = 10
+        self.square_center_in = np.transpose(np.array([0.0,0.0]))
+        self.square_width_in = 20.0
+        self.square_height_in = 10.0
         self.cc = cc
         self.canvas = canvas
         
