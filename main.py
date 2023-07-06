@@ -32,8 +32,8 @@ def setup_gui():
     draw_menu = tk.Menu(menu_bar)
     menu_bar.add_cascade(label="Draw", menu=draw_menu)
     draw_menu.add_command(label="Draw the Square", command=draw_square)
-    draw_menu.add_command(label="Move the Saqare", command=move_square)
     draw_menu.add_command(label="Resize the Square", command=resize_square)
+    draw_menu.add_command(label="Move the Saqare", command=move_square)
     
     menu_bar.add_command(label="Exit", command=exit_software)
     
@@ -154,13 +154,18 @@ def progress_on_calibrate(event_pt):
             scale = 0.5*scale
             
         if scale < 0.05:
-            # size is done, move to V angle
+            # size is done, move to V
             calibrate_mode = "V Line Angle"
             y = rotate_vec(x,90)
-            line_op1 = y
-            line_op2 = y
-            line_op3 = y
-            scale = 90
+            
+            # We are done
+            calibrate_mode = "Done"
+            instructions_label.config(text="Calibration Done")
+            canvas.delete("all") # Clear the canvas from all lines
+            canvas.bind("<Button-1>", on_do_nothing)
+            root.bind("<KeyPress>", on_do_nothing)
+            cc = coordinate_convert(focus_pt,x/20,y/20) # Provide length of line in inch
+            
         else:
             # Set instructions
             line_op1 = x*(1-scale)
@@ -168,74 +173,7 @@ def progress_on_calibrate(event_pt):
             line_op3 = x*(1+scale)
         
             instructions_label.config(text="Use r,g,b to select the line closest to 20 inches (Red, Green, Blue)")
-    
-    if calibrate_mode == "V Line Angle":
-        b=0
         
-        # Figure out on what line the user clicked
-        d1 = distance(focus_pt+line_op1-b,event_pt)
-        d2 = distance(focus_pt+line_op2,event_pt)
-        d3 = distance(focus_pt+line_op3+b,event_pt)
-        
-        if d1 < d2:
-            y = line_op1
-            scale = 0.9*scale
-        elif d3 < d2:
-            y = line_op3
-            scale = 0.9*scale
-        else:
-            scale = 0.5*scale
-            
-        if scale < 5:
-            # Angle is done, move to scale
-            calibrate_mode = "V Line Size"
-            scale = 1
-            line_op1 = y
-            line_op2 = y
-            line_op3 = y
-        else:
-            # Set instructions
-            line_op1 = rotate_vec(y, scale)*0.6
-            line_op2 = y 
-            line_op3 = rotate_vec(y, -scale)*1.4
-        
-            instructions_label.config(text="Click on the end of the closest line to Vertical (Red, Geen or Blue), or use keys r,g,b")
-            
-    if calibrate_mode == "V Line Size":
-        b=10
-        # Figure out on what line the user clicked
-        d1 = distance(focus_pt+line_op1-b,event_pt)
-        d2 = distance(focus_pt+line_op2,event_pt)
-        d3 = distance(focus_pt+line_op3+b,event_pt)
-        
-        if d1 < d2:
-            y = line_op1
-            scale = 0.9*scale
-        elif d3 < d2:
-            y = line_op3
-            scale = 0.9*scale
-        else:
-            scale = 0.5*scale
-            
-        if scale < 0.05:
-            # We are done
-            calibrate_mode = "Done"
-            instructions_label.config(text="Calibration Done")
-            canvas.delete("all") # Clear the canvas from all lines
-            canvas.bind("<Button-1>", on_do_nothing)
-            root.bind("<KeyPress>", on_do_nothing)
-            cc = coordinate_convert(focus_pt,x/10,y/10)
-            
-            return
-            
-        else:
-            # Set instructions
-            line_op1 = y*(1-scale)
-            line_op2 = y 
-            line_op3 = y*(1+scale)
-        
-            instructions_label.config(text="Click on the end of the closest line to 10 inches (Red, Geen or Blue),or use keys r,g,b")
-    
     # Before we draw, clear canvas
     canvas.delete("all") # Clear the canvas from all lines
     
@@ -244,9 +182,9 @@ def progress_on_calibrate(event_pt):
     canvas.create_line(focus_pt[0], focus_pt[1]-10, focus_pt[0], focus_pt[1]+10, fill='black')
     
     # Draw 3 options
-    canvas.create_line(focus_pt[0]-b, focus_pt[1]-b, focus_pt[0]+line_op1[0]-b, focus_pt[1]+line_op1[1]-b, fill='red', width=4)
-    canvas.create_line(focus_pt[0]   , focus_pt[1]   , focus_pt[0]+line_op2[0], focus_pt[1]+line_op2[1], fill='green', width=4)
-    canvas.create_line(focus_pt[0]+b, focus_pt[1]+b, focus_pt[0]+line_op3[0]+b, focus_pt[1]+line_op3[1]+b, fill='blue', width=4)
+    canvas.create_line(focus_pt[0], focus_pt[1]-b, focus_pt[0]+line_op1[0]-b, focus_pt[1]+line_op1[1]-b, fill='red', width=4)
+    canvas.create_line(focus_pt[0], focus_pt[1]   , focus_pt[0]+line_op2[0], focus_pt[1]+line_op2[1], fill='green', width=4)
+    canvas.create_line(focus_pt[0], focus_pt[1]+b, focus_pt[0]+line_op3[0]+b, focus_pt[1]+line_op3[1]+b, fill='blue', width=4)
     
 
 class on_screen_square:
@@ -309,7 +247,7 @@ def draw_square():
 def move_square():
     global root, instructions_label
     root.bind("<KeyPress>", on_key_press_move_square)
-    instructions_label.config(text="Use asdw to move square around (1 inch)")
+    instructions_label.config(text="Use a,s,d,w to move square around (1 inch)")
 
 def on_key_press_move_square(event):
     global oss
@@ -330,7 +268,7 @@ def on_key_press_move_square(event):
 def resize_square():
     global root, instructions_label
     root.bind("<KeyPress>", on_key_press_resize_square)
-    instructions_label.config(text="Use asdw to resize square (1 inch)")
+    instructions_label.config(text="Use a,s,d,w to resize square (1 inch)")
 
 def on_key_press_resize_square(event):
     global oss
@@ -340,9 +278,9 @@ def on_key_press_resize_square(event):
     elif event.keysym == 'd':
         oss.square_width_in = oss.square_width_in + 1
     elif event.keysym == 'w':
-        oss.square_height_in = oss.square_height_in - 1
-    elif event.keysym == 's':
         oss.square_height_in = oss.square_height_in + 1
+    elif event.keysym == 's':
+        oss.square_height_in = oss.square_height_in - 1
     else:
         return
     
