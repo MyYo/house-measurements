@@ -56,7 +56,7 @@ def calibrate():
     calibrate_mode = "Pick A Spot"
     instructions_label.config(text="Click on a spot to start calibration")
 
-    #canvas.bind("<Button-1>", on_click_calibrate)
+    canvas.bind("<Button-1>", on_click_calibrate)
     root.bind("<KeyPress>", on_key_press_calibrate)
 
 # Function to handle mouse click event in calibration mode
