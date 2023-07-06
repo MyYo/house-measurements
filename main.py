@@ -105,12 +105,13 @@ def progress_on_calibrate(event_pt):
         scale = 90.0
     
     if calibrate_mode == "H Line Angle":
-        b=0
+        bu=0
+        bv=0
         
         # Figure out on what line the user clicked
-        d1 = distance(focus_pt+line_op1-b,event_pt)
+        d1 = distance(focus_pt+line_op1,event_pt)
         d2 = distance(focus_pt+line_op2,event_pt)
-        d3 = distance(focus_pt+line_op3+b,event_pt)
+        d3 = distance(focus_pt+line_op3,event_pt)
         
         if d1 < d2:
             x = line_op1
@@ -135,14 +136,14 @@ def progress_on_calibrate(event_pt):
             line_op3 = rotate_vec(x, -scale)*1.4
         
             instructions_label.config(text="Use r,g,b to select the line closest to Horizontal (Red, Green, Blue)")
-            
         
     if calibrate_mode == "H Line Size":
-        b=10
+        bu=10
+        bv=0
         # Figure out on what line the user clicked
-        d1 = distance(focus_pt+line_op1-b,event_pt)
+        d1 = distance(focus_pt+line_op1,event_pt)
         d2 = distance(focus_pt+line_op2,event_pt)
-        d3 = distance(focus_pt+line_op3+b,event_pt)
+        d3 = distance(focus_pt+line_op3,event_pt)
         
         if d1 < d2:
             x = line_op1
@@ -155,16 +156,10 @@ def progress_on_calibrate(event_pt):
             
         if scale <= (1/4)/20: # What is the desired accuracy in inches
             # size is done, move to V
-            calibrate_mode = "V Line Angle"
             y = rotate_vec(x,90)
             
             # We are done
             calibrate_mode = "Done"
-            instructions_label.config(text="Calibration Done")
-            canvas.delete("all") # Clear the canvas from all lines
-            canvas.bind("<Button-1>", on_do_nothing)
-            root.bind("<KeyPress>", on_do_nothing)
-            cc = coordinate_convert(focus_pt,x/20,y/20) # Provide length of line in inch
             
         else:
             # Set instructions
@@ -173,7 +168,14 @@ def progress_on_calibrate(event_pt):
             line_op3 = x*(1+scale)
         
             instructions_label.config(text="Use r,g,b to select the line closest to 20 inches (Red, Green, Blue)")
-        
+    
+    if calibrate_mode == "Done":
+        instructions_label.config(text="Calibration Done")
+        canvas.delete("all") # Clear the canvas from all lines
+        canvas.bind("<Button-1>", on_do_nothing)
+        root.bind("<KeyPress>", on_do_nothing)
+        cc = coordinate_convert(focus_pt,x/20,y/20) # Provide length of line in inch
+            
     # Before we draw, clear canvas
     canvas.delete("all") # Clear the canvas from all lines
     
@@ -182,9 +184,9 @@ def progress_on_calibrate(event_pt):
     canvas.create_line(focus_pt[0], focus_pt[1]-10, focus_pt[0], focus_pt[1]+10, fill='black')
     
     # Draw 3 options
-    canvas.create_line(focus_pt[0], focus_pt[1]-b, focus_pt[0]+line_op1[0]-b, focus_pt[1]+line_op1[1]-b, fill='red', width=4)
-    canvas.create_line(focus_pt[0], focus_pt[1]   , focus_pt[0]+line_op2[0], focus_pt[1]+line_op2[1], fill='green', width=4)
-    canvas.create_line(focus_pt[0], focus_pt[1]+b, focus_pt[0]+line_op3[0]+b, focus_pt[1]+line_op3[1]+b, fill='blue', width=4)
+    canvas.create_line(focus_pt[0]-bv, focus_pt[1]-bu, focus_pt[0]+line_op1[0]-bv, focus_pt[1]+line_op1[1]-bu, fill='red', width=4)
+    canvas.create_line(focus_pt[0]   , focus_pt[1]   , focus_pt[0]+line_op2[0]   , focus_pt[1]+line_op2[1]   , fill='green', width=4)
+    canvas.create_line(focus_pt[0]+bv, focus_pt[1]+bu, focus_pt[0]+line_op3[0]+bv, focus_pt[1]+line_op3[1]+bu, fill='blue', width=4)
     
 
 class on_screen_square:
