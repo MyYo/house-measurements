@@ -154,18 +154,51 @@ def progress_on_calibrate(event_pt):
         else:
             scale = 0.5*scale
             
-        if scale <= (1/4)/20: # What is the desired accuracy in inches
+        if scale <= (1/8)/20: # What is the desired accuracy in inches
             # size is done, move to V
             y = rotate_vec(x,90)
             
             # We are done
-            calibrate_mode = "Done"
+            calibrate_mode = "V Line Size"
+            scale = 0.1 # V line is more or less calibrated, we don't need to start from scratch
+            line_op1 = y
+            line_op2 = y
+            line_op3 = y
             
         else:
             # Set instructions
             line_op1 = x*(1-scale)
             line_op2 = x 
             line_op3 = x*(1+scale)
+        
+            instructions_label.config(text="Use r,g,b to select the line closest to 20 inches (Red, Green, Blue)")
+    
+    if calibrate_mode == "V Line Size":
+        bu=0
+        bv=10
+        # Figure out on what line the user clicked
+        d1 = distance(focus_pt+line_op1,event_pt)
+        d2 = distance(focus_pt+line_op2,event_pt)
+        d3 = distance(focus_pt+line_op3,event_pt)
+        
+        if d1 < d2:
+            y = line_op1
+            scale = 0.9*scale
+        elif d3 < d2:
+            y = line_op3
+            scale = 0.9*scale
+        else:
+            scale = 0.5*scale
+            
+        if scale <= (1/8)/20: # What is the desired accuracy in inches
+            # We are done
+            calibrate_mode = "Done"
+            
+        else:
+            # Set instructions
+            line_op1 = y*(1-scale)
+            line_op2 = y 
+            line_op3 = y*(1+scale)
         
             instructions_label.config(text="Use r,g,b to select the line closest to 20 inches (Red, Green, Blue)")
     
